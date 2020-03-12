@@ -1,4 +1,5 @@
 import { Direction } from './direction';
+import { Position } from './position';
 import Game from './game';
 import Event from './event';
 
@@ -23,21 +24,25 @@ const game = new Game(58, 78);
 
 let currentDirection = Direction.UP;
 
-canvas.addEventListener('touchend', (event: TouchEvent) => {
-    const touchX: number = event.changedTouches['0'].pageX;
-    const touchY: number = event.changedTouches['0'].pageY;
+let startTouchX: number;
+let startTouchY: number;
+canvas.addEventListener('touchstart', (event: TouchEvent) => {
+    startTouchX = event.touches[0].clientX;
+    startTouchY = event.touches[0].clientY;
+}
 
-    const snakeX = game.snake.head.position.x * 5;
-    const snakeY = game.snake.head.position.y * 5;
+canvas.addEventListener('touchend', (event: TouchEvent) => {
+    const endTouchX = event.touches[0].clientX;
+    const endTouchY = event.touches[0].clientY;
 
     if (currentDirection === Direction.UP || currentDirection === Direction.DOWN) {
-        if (touchX < snakeX) {
+        if (startTouchX > endTouchX) {
             game.setDirection(Direction.LEFT);
         } else {
             game.setDirection(Direction.RIGHT);
         }
     } else {
-        if (touchY < snakeY) {
+        if (startTouchY > endTouchY) {
             game.setDirection(Direction.UP);
         } else {
             game.setDirection(Direction.DOWN);
