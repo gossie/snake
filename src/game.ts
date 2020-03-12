@@ -12,6 +12,12 @@ export default class Game {
     private currentDirection: Direction = Direction.UP;
     private subscription: Subscription;
     private gameSubject = new Subject<string>();
+    private readonly allowedDirections = new Map<Direction, Set<Direction>>([
+        [Direction.UP, new Set([Direction.LEFT, Direction.RIGHT])],
+        [Direction.LEFT, new Set([Direction.UP, Direction.DOWN])],
+        [Direction.RIGHT, new Set([Direction.UP, Direction.DOWN])],
+        [Direction.DOWN, new Set([Direction.LEFT, Direction.RIGHT])]
+    ]);
 
     constructor(private width: number, private height: number) {}
 
@@ -27,13 +33,7 @@ export default class Game {
         this.subscription = interval(50)
             .pipe(
                 tap(() => this.snake.move(this.currentDirection)),
-                tap(() => {
-                    if (this.snake.head.position.y < 0 || this.snake.head.position.x < 0 || this.snake.head.position.y >= this.height || this.snake.head.position.x >= this.width) {
-                        throw Error('border crossed');
-                    } else {
-                        this.gameSubject.next();
-                    }
-                }),
+                tap(() => this.checkBorderCollision()),
                 filter(() => this.isEqualPosition(this.field.position, this.snake.head.position))
             )
             .subscribe(
@@ -55,7 +55,20 @@ export default class Game {
     }
 
     public setDirection(direction: Direction): void {
-        this.currentDirection = direction;
+        if (this.allowedDirections.get(this.currentDirection).has(direction)) {
+            this.currentDirection = direction;
+        }
+    }
+
+    private checkBorderCollision(): void {
+        if (this.snake.head.position.y < 0
+            || this.snake.head.position.x < 0
+            || this.snake.head.position.y >= this.height
+            || this.snake.head.position.x >= this.width) {
+            throw Error('border crossed');
+        } else {
+            this.gameSubject.next();
+        }
     }
 
     private calculateNewFoodField(): void {

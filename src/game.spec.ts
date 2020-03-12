@@ -64,6 +64,91 @@ describe('game', () => {
         expect(game.foodField.position).not.toEqual(foodPosition);
     });
 
+    describe('directions', () => {
+
+        it('should not accept down as direction when currently moving up', () => {
+            const game = new Game(75, 100);
+
+            game.start();
+            game.setDirection(Direction.UP);
+            const startX = game.snake.head.position.x;
+            const startY = game.snake.head.position.y;
+
+            clock.tick(50);
+
+            expect(game.snake.head.position.x).toBe(startX);
+            expect(game.snake.head.position.y).toBe(startY - 1);
+
+            game.setDirection(Direction.DOWN);
+            clock.tick(50);
+
+            expect(game.snake.head.position.x).toBe(startX);
+            expect(game.snake.head.position.y).toBe(startY - 2);
+        });
+
+        it('should not accept up as direction when currently moving down', () => {
+            const game = new Game(75, 100);
+
+            game.start();
+            game.setDirection(Direction.LEFT);
+            game.setDirection(Direction.DOWN);
+            const startX = game.snake.head.position.x;
+            const startY = game.snake.head.position.y;
+
+            clock.tick(50);
+
+            expect(game.snake.head.position.x).toBe(startX);
+            expect(game.snake.head.position.y).toBe(startY + 1);
+
+            game.setDirection(Direction.UP);
+            clock.tick(50);
+
+            expect(game.snake.head.position.x).toBe(startX);
+            expect(game.snake.head.position.y).toBe(startY + 2);
+        });
+
+        it('should not accept right as direction when currently moving left', () => {
+            const game = new Game(75, 100);
+
+            game.start();
+            game.setDirection(Direction.LEFT);
+            const startX = game.snake.head.position.x;
+            const startY = game.snake.head.position.y;
+
+            clock.tick(50);
+
+            expect(game.snake.head.position.x).toBe(startX - 1);
+            expect(game.snake.head.position.y).toBe(startY);
+
+            game.setDirection(Direction.RIGHT);
+            clock.tick(50);
+
+            expect(game.snake.head.position.x).toBe(startX - 2);
+            expect(game.snake.head.position.y).toBe(startY);
+        });
+
+        it('should not accept left as direction when currently moving right', () => {
+            const game = new Game(75, 100);
+
+            game.start();
+            game.setDirection(Direction.RIGHT);
+            const startX = game.snake.head.position.x;
+            const startY = game.snake.head.position.y;
+
+            clock.tick(50);
+
+            expect(game.snake.head.position.x).toBe(startX + 1);
+            expect(game.snake.head.position.y).toBe(startY);
+
+            game.setDirection(Direction.LEFT);
+            clock.tick(50);
+
+            expect(game.snake.head.position.x).toBe(startX + 2);
+            expect(game.snake.head.position.y).toBe(startY);
+        });
+
+    });
+
     describe('snake crosses borders', () => {
 
         it('should fail when upper border is crossed', (done) => {
@@ -144,6 +229,7 @@ describe('game', () => {
         it('should fail when botton border is crossed', (done) => {
             const game = new Game(58, 78);
 
+            game.setDirection(Direction.LEFT);
             game.setDirection(Direction.DOWN);
             game.start();
             const startY = game.snake.head.position.y;
@@ -157,7 +243,7 @@ describe('game', () => {
                         gameSubscription.unsubscribe();
                         done();
                     } else {
-                        expect(msg).toBeUndefined()
+                        expect(msg).toBeUndefined();
                     }
                 });
 
