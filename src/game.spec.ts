@@ -67,6 +67,44 @@ describe('game', () => {
         expect(game.foodField.position).not.toEqual(foodPosition);
     });
 
+    it('should reset game when started again', () => {
+        const game = new Game(75, 100);
+
+        expect(game.points).toBe(0);
+
+        game.start();
+
+        const foodPosition = game.foodField.position;
+
+        let direction = foodPosition.x < game.snake.head.position.x ? Direction.LEFT : Direction.RIGHT;
+        game.setDirection(direction);
+
+        while (game.snake.head.position.x !== foodPosition.x) {
+            clock.tick(50);
+        }
+
+        direction = foodPosition.y < game.snake.head.position.y ? Direction.UP : Direction.DOWN;
+        game.setDirection(direction);
+
+        while (game.snake.head.position.y !== foodPosition.y) {
+            clock.tick(50);
+        }
+        game.setDirection(Direction.LEFT);
+
+        game.start();
+
+        expect(game.points).toBe(0);
+        expect(game.snake.head.next).toBeUndefined();
+
+        const startX = game.snake.head.position.x;
+        const startY = game.snake.head.position.y;
+
+        clock.tick(50);
+
+        expect(game.snake.head.position.x).toBe(startX);
+        expect(game.snake.head.position.y).toBe(startY - 1);
+    });
+
     describe('directions', () => {
 
         it('should not accept down as direction when currently moving up', () => {
@@ -157,8 +195,8 @@ describe('game', () => {
         it('should fail when upper border is crossed', (done) => {
             const game = new Game(58, 78);
 
-            game.setDirection(Direction.UP);
             game.start();
+            game.setDirection(Direction.UP);
             const startY = game.snake.head.position.y;
 
             let numberOfCalls = 0;
@@ -182,8 +220,8 @@ describe('game', () => {
         it('should fail when left border is crossed', (done) => {
             const game = new Game(58, 78);
 
-            game.setDirection(Direction.LEFT);
             game.start();
+            game.setDirection(Direction.LEFT);
             const startX = game.snake.head.position.x;
 
             let numberOfCalls = 0;
@@ -207,8 +245,8 @@ describe('game', () => {
         it('should fail when right border is crossed', (done) => {
             const game = new Game(58, 78);
 
-            game.setDirection(Direction.RIGHT);
             game.start();
+            game.setDirection(Direction.RIGHT);
             const startX = game.snake.head.position.x;
 
             let numberOfCalls = 0;
@@ -232,9 +270,9 @@ describe('game', () => {
         it('should fail when botton border is crossed', (done) => {
             const game = new Game(58, 78);
 
+            game.start();
             game.setDirection(Direction.LEFT);
             game.setDirection(Direction.DOWN);
-            game.start();
             const startY = game.snake.head.position.y;
 
             let numberOfCalls = 0;

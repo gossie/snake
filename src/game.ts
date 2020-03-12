@@ -30,6 +30,7 @@ export default class Game {
         this._snake = new Snake(Math.round(this.width / 2), Math.round(this.height / 2));
         this.calculateNewFoodField();
         this._points = 0;
+        this.currentDirection = Direction.UP;
 
         this.subscription = interval(50)
             .pipe(
