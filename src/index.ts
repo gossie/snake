@@ -18,7 +18,28 @@ document.getElementById('canvas').appendChild(canvas);
 
 const ctx: CanvasRenderingContext2D = canvas.getContext('2d');
 
-const game = new Game(300, 400);
+const game = new Game(58, 78);
+
+const startButton = document.getElementById('start-button');
+startButton.addEventListener('click', () => {
+    const gameSubscription = game.observeGame()
+        .subscribe((msg: string) => {
+            if (msg) {
+                gameSubscription.unsubscribe();
+                alert(msg);
+            } else {
+                ctx.clearRect(5, 5, 290, 390);
+                ctx.fillRect(5 + game.foodField.position.x * 5, 5 + game.foodField.position.y * 5, 5, 5);
+                let node = game.snake.head;
+                while (node) {
+                    ctx.fillRect(5 + node.position.x * 5, 5 + node.position.y * 5, 5, 5);
+                    node = node.next;
+                }
+            }
+        });
+
+    game.start();
+});
 
 window.addEventListener('keydown', (e) => {
     switch (e.keyCode) {
@@ -37,17 +58,8 @@ window.addEventListener('keydown', (e) => {
     }
 }, false);
 
-game.observeGame()
-    .subscribe(() => {
-        ctx.clearRect(2, 2, 297, 397);
-        ctx.fillRect(game.foodField.position.x, game.foodField.position.y, 4, 4);
-        let node = game.snake.head;
-        while (node) {
-            ctx.fillRect(node.position.x, node.position.y, 4, 4);
-            node = node.next;
-        }
-    });
-
-ctx.strokeRect(1, 1, 299, 399);
-
-game.start();
+ctx.strokeRect(0, 0, 300, 400);
+ctx.strokeRect(1, 1, 298, 398);
+ctx.strokeRect(2, 2, 296, 396);
+ctx.strokeRect(3, 3, 294, 394);
+ctx.strokeRect(4, 4, 292, 392);
