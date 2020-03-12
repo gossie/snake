@@ -99,7 +99,7 @@ describe('game', () => {
         const startX = game.snake.head.position.x;
         const startY = game.snake.head.position.y;
 
-        clock.tick(50);
+        clock.tick(75);
 
         expect(game.snake.head.position.x).toBe(startX);
         expect(game.snake.head.position.y).toBe(startY - 1);
