@@ -50,8 +50,13 @@ canvas.addEventListener('touchend', (event: TouchEvent) => {
 });
 
 const startButton = document.getElementById('start-button');
+let gameSubscription;
 startButton.addEventListener('click', () => {
-    const gameSubscription = game.observeGame()
+    if (gameSubscription) {
+        gameSubscription.unsubscribe();
+    }
+
+    gameSubscription = game.observeGame()
         .subscribe((event: Event) => {
             if (event.msg) {
                 gameSubscription.unsubscribe();
