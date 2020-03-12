@@ -98,4 +98,23 @@ describe('Snake', () => {
         expect(snake.head.next.position).toEqual({x: 50, y: 52});
     });
 
+    it('should crash when snake collides with itself', () => {
+        const snake = new Snake(50, 50);
+
+        snake.move(Direction.DOWN);
+        snake.eat();
+        snake.move(Direction.DOWN);
+        snake.eat();
+        snake.move(Direction.DOWN);
+        snake.eat();
+        snake.move(Direction.DOWN);
+        snake.eat();
+        snake.move(Direction.DOWN);
+        snake.eat();
+        snake.move(Direction.RIGHT);
+        snake.move(Direction.UP);
+
+        expect(() => snake.move(Direction.LEFT)).toThrowError('snake crashed into itself');
+    });
+
 });

@@ -12,7 +12,7 @@ interface Node {
 export default class Snake {
 
     private _head: Node;
-    private lastNode: Node
+    private lastNode: Node;
     private direction = Direction.UP;
 
     constructor(x: number, y: number) {
@@ -60,6 +60,14 @@ export default class Snake {
                     y: this._head.position.y + 1
                 };
                 break;
+        }
+
+        node = this.head.next;
+        while (node) {
+            if (this.head.position.x === node.position.x && this.head.position.y === node.position.y) {
+                throw new Error('snake crashed into itself');
+            }
+            node = node.next;
         }
     }
 
