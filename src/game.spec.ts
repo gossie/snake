@@ -1,5 +1,6 @@
 import { Direction } from './direction';
 import Game from './game';
+import Event from './event';
 
 const sinon = require('sinon');
 
@@ -201,14 +202,14 @@ describe('game', () => {
 
             let numberOfCalls = 0;
             const gameSubscription = game.observeGame()
-                .subscribe((msg: string) => {
+                .subscribe((event: Event) => {
                     ++numberOfCalls;
                     if (numberOfCalls === startY + 1) {
-                        expect(msg).toBe('Error');
+                        expect(event.msg).toBe('Error');
                         gameSubscription.unsubscribe();
                         done();
                     } else {
-                        expect(msg).toBeUndefined()
+                        expect(event.msg).toBeUndefined();
                     }
                 });
 
@@ -226,14 +227,14 @@ describe('game', () => {
 
             let numberOfCalls = 0;
             const gameSubscription = game.observeGame()
-                .subscribe((msg: string) => {
+                .subscribe((event: Event) => {
                     ++numberOfCalls;
                     if (numberOfCalls === startX + 1) {
-                        expect(msg).toBe('Error');
+                        expect(event.msg).toBe('Error');
                         gameSubscription.unsubscribe();
                         done();
                     } else {
-                        expect(msg).toBeUndefined()
+                        expect(event.msg).toBeUndefined();
                     }
                 });
 
@@ -251,14 +252,14 @@ describe('game', () => {
 
             let numberOfCalls = 0;
             const gameSubscription = game.observeGame()
-                .subscribe((msg: string) => {
+                .subscribe((event: Event) => {
                     ++numberOfCalls;
                     if (numberOfCalls === 58 - startX) {
-                        expect(msg).toBe('Error');
+                        expect(event.msg).toBe('Error');
                         gameSubscription.unsubscribe();
                         done();
                     } else {
-                        expect(msg).toBeUndefined();
+                        expect(event.msg).toBeUndefined();
                     }
                 });
 
@@ -277,14 +278,14 @@ describe('game', () => {
 
             let numberOfCalls = 0;
             const gameSubscription = game.observeGame()
-                .subscribe((msg: string) => {
+                .subscribe((event: Event) => {
                     ++numberOfCalls;
                     if (numberOfCalls === 78 - startY) {
-                        expect(msg).toBe('Error');
+                        expect(event.msg).toBe('Error');
                         gameSubscription.unsubscribe();
                         done();
                     } else {
-                        expect(msg).toBeUndefined();
+                        expect(event.msg).toBeUndefined();
                     }
                 });
 

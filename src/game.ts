@@ -1,6 +1,7 @@
 import { interval, Observable, Subject, Subscription } from 'rxjs';
 import { filter, tap } from 'rxjs/operators';
 import { Direction } from './direction';
+import Event from './event';
 import FoodField from './food-field';
 import Position from './position';
 import Snake from './snake';
@@ -12,7 +13,7 @@ export default class Game {
     private field: FoodField;
     private currentDirection: Direction = Direction.UP;
     private subscription: Subscription;
-    private gameSubject = new Subject<string>();
+    private gameSubject = new Subject<Event>();
     private readonly allowedDirections = new Map<Direction, Set<Direction>>([
         [Direction.UP, new Set([Direction.LEFT, Direction.RIGHT])],
         [Direction.LEFT, new Set([Direction.UP, Direction.DOWN])],
@@ -43,17 +44,21 @@ export default class Game {
                     this.snake.eat();
                     this.calculateNewFoodField();
                     ++this._points;
-                    this.gameSubject.next();
+                    this.gameSubject.next({
+                        payload: {
+                            direction: this.currentDirection
+                        }
+                    });
                 },
                 () => {
-                    this.gameSubject.next('Error');
+                    this.gameSubject.next({ msg: 'Error'});
                     this.subscription.unsubscribe();
                     this.subscription = undefined;
                 }
             );
     }
 
-    public observeGame(): Observable<string> {
+    public observeGame(): Observable<Event> {
         return this.gameSubject.asObservable();
     }
 
@@ -70,7 +75,11 @@ export default class Game {
             || this.snake.head.position.x >= this.width) {
             throw Error('border crossed');
         } else {
-            this.gameSubject.next();
+            this.gameSubject.next({
+                payload: {
+                    direction: this.currentDirection
+                }
+            });
         }
     }
 

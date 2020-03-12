@@ -1,5 +1,6 @@
 import { Direction } from './direction';
 import Game from './game';
+import Event from './event';
 
 const canvas: HTMLCanvasElement = document.createElement('canvas');
 canvas.width = 300;
@@ -20,6 +21,8 @@ const ctx: CanvasRenderingContext2D = canvas.getContext('2d');
 
 const game = new Game(58, 78);
 
+let currentDirection = Direction.UP;
+
 canvas.addEventListener('touchend', (event: TouchEvent) => {
     const touchX: number = event.changedTouches['0'].pageX;
     const touchY: number = event.changedTouches['0'].pageY;
@@ -27,12 +30,7 @@ canvas.addEventListener('touchend', (event: TouchEvent) => {
     const snakeX = game.snake.head.position.x * 5;
     const snakeY = game.snake.head.position.y * 5;
 
-    console.debug('touchX', touchX);
-    console.debug('touchY', touchY);
-    console.debug('snakeX', snakeX);
-    console.debug('snakeY', snakeY);
-
-    if (Math.abs(touchX - snakeX) > Math.abs(touchY - snakeY)) {
+    if (currentDirection === Direction.UP || currentDirection === Direction.DOWN) {
         if (touchX < snakeX) {
             game.setDirection(Direction.LEFT);
         } else {
@@ -50,11 +48,12 @@ canvas.addEventListener('touchend', (event: TouchEvent) => {
 const startButton = document.getElementById('start-button');
 startButton.addEventListener('click', () => {
     const gameSubscription = game.observeGame()
-        .subscribe((msg: string) => {
-            if (msg) {
+        .subscribe((event: Event) => {
+            if (event.msg) {
                 gameSubscription.unsubscribe();
-                alert(msg);
+                alert(event.msg);
             } else {
+                currentDirection = event.payload.direction;
                 document.getElementById('points').textContent = `${game.points}`;
                 ctx.clearRect(5, 5, 290, 390);
                 ctx.fillRect(5 + game.foodField.position.x * 5, 5 + game.foodField.position.y * 5, 5, 5);
