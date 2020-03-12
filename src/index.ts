@@ -28,6 +28,7 @@ startButton.addEventListener('click', () => {
                 gameSubscription.unsubscribe();
                 alert(msg);
             } else {
+                document.getElementById('points').textContent = `${game.points}`;
                 ctx.clearRect(5, 5, 290, 390);
                 ctx.fillRect(5 + game.foodField.position.x * 5, 5 + game.foodField.position.y * 5, 5, 5);
                 let node = game.snake.head;

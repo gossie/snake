@@ -41,6 +41,8 @@ describe('game', () => {
     it('should eat', () => {
         const game = new Game(75, 100);
 
+        expect(game.points).toBe(0);
+
         game.start();
 
         const foodPosition = game.foodField.position;
@@ -59,6 +61,7 @@ describe('game', () => {
             clock.tick(50);
         }
 
+        expect(game.points).toBe(1);
         expect(game.snake.head.next).toBeDefined();
         expect(game.foodField.position).toBeDefined();
         expect(game.foodField.position).not.toEqual(foodPosition);

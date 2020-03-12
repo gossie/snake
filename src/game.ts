@@ -8,6 +8,7 @@ import Snake from './snake';
 export default class Game {
 
     private _snake: Snake;
+    private _points = 0;
     private field: FoodField;
     private currentDirection: Direction = Direction.UP;
     private subscription: Subscription;
@@ -27,8 +28,8 @@ export default class Game {
         }
 
         this._snake = new Snake(Math.round(this.width / 2), Math.round(this.height / 2));
-
         this.calculateNewFoodField();
+        this._points = 0;
 
         this.subscription = interval(50)
             .pipe(
@@ -40,6 +41,7 @@ export default class Game {
                 () => {
                     this.snake.eat();
                     this.calculateNewFoodField();
+                    ++this._points;
                     this.gameSubject.next();
                 },
                 () => {
@@ -94,5 +96,9 @@ export default class Game {
 
     public get foodField(): FoodField {
         return this.field;
+    }
+
+    public get points(): number {
+        return this._points;
     }
 }
