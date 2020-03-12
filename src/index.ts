@@ -1,5 +1,4 @@
 import { Direction } from './direction';
-import { Position } from './position';
 import Game from './game';
 import Event from './event';
 
@@ -29,7 +28,7 @@ let startTouchY: number;
 canvas.addEventListener('touchstart', (event: TouchEvent) => {
     startTouchX = event.touches[0].clientX;
     startTouchY = event.touches[0].clientY;
-}
+});
 
 canvas.addEventListener('touchend', (event: TouchEvent) => {
     const endTouchX = event.touches[0].clientX;
