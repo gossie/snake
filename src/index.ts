@@ -20,6 +20,33 @@ const ctx: CanvasRenderingContext2D = canvas.getContext('2d');
 
 const game = new Game(58, 78);
 
+canvas.addEventListener('touchend', (event: TouchEvent) => {
+    const touchX: number = event.changedTouches['0'].pageX;
+    const touchY: number = event.changedTouches['0'].pageY;
+
+    const snakeX = game.snake.head.position.x * 5;
+    const snakeY = game.snake.head.position.y * 5;
+
+    console.debug('touchX', touchX);
+    console.debug('touchY', touchY);
+    console.debug('snakeX', snakeX);
+    console.debug('snakeY', snakeY);
+
+    if (Math.abs(touchX - snakeX) > Math.abs(touchY - snakeY)) {
+        if (touchX < snakeX) {
+            game.setDirection(Direction.LEFT);
+        } else {
+            game.setDirection(Direction.RIGHT);
+        }
+    } else {
+        if (touchY < snakeY) {
+            game.setDirection(Direction.UP);
+        } else {
+            game.setDirection(Direction.DOWN);
+        }
+    }
+});
+
 const startButton = document.getElementById('start-button');
 startButton.addEventListener('click', () => {
     const gameSubscription = game.observeGame()
