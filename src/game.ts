@@ -11,7 +11,7 @@ export default class Game {
     private field: FoodField;
     private currentDirection: Direction = Direction.UP;
     private subscription: Subscription;
-    private gameSubject = new Subject<void>();
+    private gameSubject = new Subject<string>();
 
     constructor(private width: number, private height: number) {}
 
@@ -27,17 +27,30 @@ export default class Game {
         this.subscription = interval(50)
             .pipe(
                 tap(() => this.snake.move(this.currentDirection)),
-                tap(() => this.gameSubject.next()),
+                tap(() => {
+                    if (this.snake.head.position.y < 0 || this.snake.head.position.x < 0 || this.snake.head.position.y >= this.height || this.snake.head.position.x >= this.width) {
+                        throw Error('border crossed');
+                    } else {
+                        this.gameSubject.next();
+                    }
+                }),
                 filter(() => this.isEqualPosition(this.field.position, this.snake.head.position))
             )
-            .subscribe(() => {
-                this.snake.eat();
-                this.calculateNewFoodField();
-                this.gameSubject.next();
-            });
+            .subscribe(
+                () => {
+                    this.snake.eat();
+                    this.calculateNewFoodField();
+                    this.gameSubject.next();
+                },
+                () => {
+                    this.gameSubject.next('Error');
+                    this.subscription.unsubscribe();
+                    this.subscription = undefined;
+                }
+            );
     }
 
-    public observeGame(): Observable<void> {
+    public observeGame(): Observable<string> {
         return this.gameSubject.asObservable();
     }
 

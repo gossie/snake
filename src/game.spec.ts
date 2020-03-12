@@ -64,4 +64,107 @@ describe('game', () => {
         expect(game.foodField.position).not.toEqual(foodPosition);
     });
 
+    describe('snake crosses borders', () => {
+
+        it('should fail when upper border is crossed', (done) => {
+            const game = new Game(58, 78);
+
+            game.setDirection(Direction.UP);
+            game.start();
+            const startY = game.snake.head.position.y;
+
+            let numberOfCalls = 0;
+            const gameSubscription = game.observeGame()
+                .subscribe((msg: string) => {
+                    ++numberOfCalls;
+                    if (numberOfCalls === startY + 1) {
+                        expect(msg).toBe('Error');
+                        gameSubscription.unsubscribe();
+                        done();
+                    } else {
+                        expect(msg).toBeUndefined()
+                    }
+                });
+
+            for (let i = startY; i >= 0; i--) {
+                clock.tick(50);
+            }
+        });
+
+        it('should fail when left border is crossed', (done) => {
+            const game = new Game(58, 78);
+
+            game.setDirection(Direction.LEFT);
+            game.start();
+            const startX = game.snake.head.position.x;
+
+            let numberOfCalls = 0;
+            const gameSubscription = game.observeGame()
+                .subscribe((msg: string) => {
+                    ++numberOfCalls;
+                    if (numberOfCalls === startX + 1) {
+                        expect(msg).toBe('Error');
+                        gameSubscription.unsubscribe();
+                        done();
+                    } else {
+                        expect(msg).toBeUndefined()
+                    }
+                });
+
+            for (let i = startX; i >= 0; i--) {
+                clock.tick(50);
+            }
+        });
+
+        it('should fail when right border is crossed', (done) => {
+            const game = new Game(58, 78);
+
+            game.setDirection(Direction.RIGHT);
+            game.start();
+            const startX = game.snake.head.position.x;
+
+            let numberOfCalls = 0;
+            const gameSubscription = game.observeGame()
+                .subscribe((msg: string) => {
+                    ++numberOfCalls;
+                    if (numberOfCalls === 58 - startX) {
+                        expect(msg).toBe('Error');
+                        gameSubscription.unsubscribe();
+                        done();
+                    } else {
+                        expect(msg).toBeUndefined();
+                    }
+                });
+
+            for (let i = startX; i <= 58; i++) {
+                clock.tick(50);
+            }
+        });
+
+        it('should fail when botton border is crossed', (done) => {
+            const game = new Game(58, 78);
+
+            game.setDirection(Direction.DOWN);
+            game.start();
+            const startY = game.snake.head.position.y;
+
+            let numberOfCalls = 0;
+            const gameSubscription = game.observeGame()
+                .subscribe((msg: string) => {
+                    ++numberOfCalls;
+                    if (numberOfCalls === 78 - startY) {
+                        expect(msg).toBe('Error');
+                        gameSubscription.unsubscribe();
+                        done();
+                    } else {
+                        expect(msg).toBeUndefined()
+                    }
+                });
+
+            for (let i = startY; i <= 78; i++) {
+                clock.tick(50);
+            }
+        });
+    });
+
 });
