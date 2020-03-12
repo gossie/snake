@@ -69,10 +69,7 @@ export default class Game {
     }
 
     private checkBorderCollision(): void {
-        if (this.snake.head.position.y < 0
-            || this.snake.head.position.x < 0
-            || this.snake.head.position.y >= this.height
-            || this.snake.head.position.x >= this.width) {
+        if (this.isNotOnTheField()) {
             throw Error('border crossed');
         } else {
             this.gameSubject.next({
@@ -81,6 +78,13 @@ export default class Game {
                 }
             });
         }
+    }
+
+    private isNotOnTheField(): boolean {
+        return this.snake.head.position.y < 0
+            || this.snake.head.position.x < 0
+            || this.snake.head.position.y >= this.height
+            || this.snake.head.position.x >= this.width;
     }
 
     private calculateNewFoodField(): void {
