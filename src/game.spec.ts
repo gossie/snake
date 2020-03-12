@@ -51,14 +51,14 @@ describe('game', () => {
         game.setDirection(direction);
 
         while (game.snake.head.position.x !== foodPosition.x) {
-            clock.tick(50);
+            clock.tick(75);
         }
 
         direction = foodPosition.y < game.snake.head.position.y ? Direction.UP : Direction.DOWN;
         game.setDirection(direction);
 
         while (game.snake.head.position.y !== foodPosition.y) {
-            clock.tick(50);
+            clock.tick(75);
         }
 
         expect(game.points).toBe(1);
@@ -80,14 +80,14 @@ describe('game', () => {
         game.setDirection(direction);
 
         while (game.snake.head.position.x !== foodPosition.x) {
-            clock.tick(50);
+            clock.tick(75);
         }
 
         direction = foodPosition.y < game.snake.head.position.y ? Direction.UP : Direction.DOWN;
         game.setDirection(direction);
 
         while (game.snake.head.position.y !== foodPosition.y) {
-            clock.tick(50);
+            clock.tick(75);
         }
         game.setDirection(Direction.LEFT);
 
@@ -115,13 +115,13 @@ describe('game', () => {
             const startX = game.snake.head.position.x;
             const startY = game.snake.head.position.y;
 
-            clock.tick(50);
+            clock.tick(75);
 
             expect(game.snake.head.position.x).toBe(startX);
             expect(game.snake.head.position.y).toBe(startY - 1);
 
             game.setDirection(Direction.DOWN);
-            clock.tick(50);
+            clock.tick(75);
 
             expect(game.snake.head.position.x).toBe(startX);
             expect(game.snake.head.position.y).toBe(startY - 2);
@@ -136,13 +136,13 @@ describe('game', () => {
             const startX = game.snake.head.position.x;
             const startY = game.snake.head.position.y;
 
-            clock.tick(50);
+            clock.tick(75);
 
             expect(game.snake.head.position.x).toBe(startX);
             expect(game.snake.head.position.y).toBe(startY + 1);
 
             game.setDirection(Direction.UP);
-            clock.tick(50);
+            clock.tick(75);
 
             expect(game.snake.head.position.x).toBe(startX);
             expect(game.snake.head.position.y).toBe(startY + 2);
@@ -156,13 +156,13 @@ describe('game', () => {
             const startX = game.snake.head.position.x;
             const startY = game.snake.head.position.y;
 
-            clock.tick(50);
+            clock.tick(75);
 
             expect(game.snake.head.position.x).toBe(startX - 1);
             expect(game.snake.head.position.y).toBe(startY);
 
             game.setDirection(Direction.RIGHT);
-            clock.tick(50);
+            clock.tick(75);
 
             expect(game.snake.head.position.x).toBe(startX - 2);
             expect(game.snake.head.position.y).toBe(startY);
@@ -176,13 +176,13 @@ describe('game', () => {
             const startX = game.snake.head.position.x;
             const startY = game.snake.head.position.y;
 
-            clock.tick(50);
+            clock.tick(75);
 
             expect(game.snake.head.position.x).toBe(startX + 1);
             expect(game.snake.head.position.y).toBe(startY);
 
             game.setDirection(Direction.LEFT);
-            clock.tick(50);
+            clock.tick(75);
 
             expect(game.snake.head.position.x).toBe(startX + 2);
             expect(game.snake.head.position.y).toBe(startY);
@@ -213,7 +213,7 @@ describe('game', () => {
                 });
 
             for (let i = startY; i >= 0; i--) {
-                clock.tick(50);
+                clock.tick(75);
             }
         });
 
@@ -238,7 +238,7 @@ describe('game', () => {
                 });
 
             for (let i = startX; i >= 0; i--) {
-                clock.tick(50);
+                clock.tick(75);
             }
         });
 
@@ -263,7 +263,7 @@ describe('game', () => {
                 });
 
             for (let i = startX; i <= 58; i++) {
-                clock.tick(50);
+                clock.tick(75);
             }
         });
 
@@ -289,7 +289,7 @@ describe('game', () => {
                 });
 
             for (let i = startY; i <= 78; i++) {
-                clock.tick(50);
+                clock.tick(75);
             }
         });
     });
