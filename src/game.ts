@@ -33,7 +33,7 @@ export default class Game {
         this._points = 0;
         this.currentDirection = Direction.UP;
 
-        this.subscription = interval(50)
+        this.subscription = interval(75)
             .pipe(
                 tap(() => this.snake.move(this.currentDirection)),
                 tap(() => this.checkBorderCollision()),
