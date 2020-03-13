@@ -30,9 +30,18 @@ canvas.addEventListener('touchstart', (event: TouchEvent) => {
     startTouchY = event.changedTouches['0'].clientY;
 }, {passive: false});
 
-canvas.addEventListener('touchmove', (event: TouchEvent) => event.preventDefault());
-canvas.addEventListener('mousemove', (event: MouseEvent) => event.preventDefault());
-canvas.addEventListener('scroll', (event) => event.preventDefault());
+canvas.addEventListener('touchmove', (event: TouchEvent) => {
+    event.stopPropagation();
+    event.preventDefault();
+});
+canvas.addEventListener('mousemove', (event: MouseEvent) => {
+    event.stopPropagation();
+    event.preventDefault();
+});
+canvas.addEventListener('scroll', (event) => {
+    event.stopPropagation();
+    event.preventDefault();
+});
 
 canvas.addEventListener('touchend', (event: TouchEvent) => {
     const endTouchX = event.changedTouches['0'].clientX;
