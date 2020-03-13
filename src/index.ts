@@ -31,7 +31,7 @@ canvas.addEventListener('touchstart', (event: TouchEvent) => {
 }, {passive: false});
 
 canvas.addEventListener('touchmove', (event: TouchEvent) => event.preventDefault());
-
+canvas.addEventListener('mousemove', (event: MouseEvent) => event.preventDefault());
 canvas.addEventListener('scroll', (event) => event.preventDefault());
 
 canvas.addEventListener('touchend', (event: TouchEvent) => {
