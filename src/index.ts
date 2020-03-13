@@ -28,7 +28,7 @@ let startTouchY: number;
 canvas.addEventListener('touchstart', (event: TouchEvent) => {
     startTouchX = event.changedTouches['0'].clientX;
     startTouchY = event.changedTouches['0'].clientY;
-});
+}, {passive: false});
 
 canvas.addEventListener('touchend', (event: TouchEvent) => {
     const endTouchX = event.changedTouches['0'].clientX;
@@ -47,7 +47,7 @@ canvas.addEventListener('touchend', (event: TouchEvent) => {
             game.setDirection(Direction.DOWN);
         }
     }
-});
+}, {passive: false});
 
 const startButton = document.getElementById('start-button');
 let gameSubscription;
