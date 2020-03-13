@@ -30,6 +30,8 @@ canvas.addEventListener('touchstart', (event: TouchEvent) => {
     startTouchY = event.changedTouches['0'].clientY;
 }, {passive: false});
 
+canvas.addEventListener('touchmove', (event: TouchEvent) => event.preventDefault());
+
 canvas.addEventListener('touchend', (event: TouchEvent) => {
     const endTouchX = event.changedTouches['0'].clientX;
     const endTouchY = event.changedTouches['0'].clientY;
