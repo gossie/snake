@@ -26,13 +26,13 @@ let currentDirection = Direction.UP;
 let startTouchX: number;
 let startTouchY: number;
 canvas.addEventListener('touchstart', (event: TouchEvent) => {
-    startTouchX = event.touches[0].clientX;
-    startTouchY = event.touches[0].clientY;
+    startTouchX = event.changedTouches['0'].clientX;
+    startTouchY = event.changedTouches['0'].clientY;
 });
 
 canvas.addEventListener('touchend', (event: TouchEvent) => {
-    const endTouchX = event.touches[0].clientX;
-    const endTouchY = event.touches[0].clientY;
+    const endTouchX = event.changedTouches['0'].clientX;
+    const endTouchY = event.changedTouches['0'].clientY;
 
     if (currentDirection === Direction.UP || currentDirection === Direction.DOWN) {
         if (startTouchX > endTouchX) {
