@@ -62,7 +62,7 @@ startButton.addEventListener('click', () => {
         .subscribe((event: Event) => {
             if (event.msg) {
                 gameSubscription.unsubscribe();
-                alert(event.msg);
+                alert('Game over');
             } else {
                 currentDirection = event.payload.direction;
                 document.getElementById('points').textContent = `${game.points}`;
