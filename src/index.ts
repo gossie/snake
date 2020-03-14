@@ -72,6 +72,11 @@ startButton.addEventListener('click', () => {
                 ctx.fillStyle = '#000000';
                 ctx.fillRect(5 + game.foodField.position.x * 5, 5 + game.foodField.position.y * 5, 5, 5);
                 let node = game.snake.head;
+                ctx.fillStyle = '#000000';
+                ctx.beginPath();
+                ctx.arc(8 + node.position.x * 5, 8 + node.position.y * 5, 4, 0, 2 * Math.PI);
+                ctx.fill();
+                node = node.next;
                 while (node) {
                     ctx.fillStyle = '#000000';
                     ctx.fillRect(5 + node.position.x * 5, 5 + node.position.y * 5, 5, 5);
