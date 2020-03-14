@@ -1,6 +1,6 @@
 import { Direction } from './direction';
-import Game from './game';
 import Event from './event';
+import Game from './game';
 
 const canvas: HTMLCanvasElement = document.createElement('canvas');
 canvas.width = 300;
@@ -67,9 +67,13 @@ startButton.addEventListener('click', () => {
                 currentDirection = event.payload.direction;
                 document.getElementById('points').textContent = `${game.points}`;
                 ctx.clearRect(5, 5, 290, 390);
+                ctx.fillStyle = '#9DCC06';
+                ctx.fillRect(5, 5, 290, 390);
+                ctx.fillStyle = '#000000';
                 ctx.fillRect(5 + game.foodField.position.x * 5, 5 + game.foodField.position.y * 5, 5, 5);
                 let node = game.snake.head;
                 while (node) {
+                    ctx.fillStyle = '#000000';
                     ctx.fillRect(5 + node.position.x * 5, 5 + node.position.y * 5, 5, 5);
                     node = node.next;
                 }
@@ -101,3 +105,6 @@ ctx.strokeRect(1, 1, 298, 398);
 ctx.strokeRect(2, 2, 296, 396);
 ctx.strokeRect(3, 3, 294, 394);
 ctx.strokeRect(4, 4, 292, 392);
+
+ctx.fillStyle = '#9DCC06';
+ctx.fillRect(5, 5, 290, 390);
