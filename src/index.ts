@@ -74,7 +74,7 @@ startButton.addEventListener('click', () => {
                 let node = game.snake.head;
                 ctx.fillStyle = '#000000';
                 ctx.beginPath();
-                ctx.arc(8 + node.position.x * 5, 8 + node.position.y * 5, 5, 0, 2 * Math.PI);
+                ctx.arc(8 + node.position.x * 5, 8 + node.position.y * 5, 4, 0, 2 * Math.PI);
                 ctx.fill();
                 node = node.next;
                 while (node) {
