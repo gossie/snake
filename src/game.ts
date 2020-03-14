@@ -50,8 +50,8 @@ export default class Game {
                         }
                     });
                 },
-                () => {
-                    this.gameSubject.next({ msg: 'Error'});
+                (e: Error) => {
+                    this.gameSubject.next({ msg: e.message});
                     this.subscription.unsubscribe();
                     this.subscription = undefined;
                 }

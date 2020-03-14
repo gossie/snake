@@ -205,7 +205,7 @@ describe('game', () => {
                 .subscribe((event: Event) => {
                     ++numberOfCalls;
                     if (numberOfCalls === startY + 1) {
-                        expect(event.msg).toBe('Error');
+                        expect(event.msg).toBe('border crossed');
                         gameSubscription.unsubscribe();
                         done();
                     } else {
@@ -230,7 +230,7 @@ describe('game', () => {
                 .subscribe((event: Event) => {
                     ++numberOfCalls;
                     if (numberOfCalls === startX + 1) {
-                        expect(event.msg).toBe('Error');
+                        expect(event.msg).toBe('border crossed');
                         gameSubscription.unsubscribe();
                         done();
                     } else {
@@ -255,7 +255,7 @@ describe('game', () => {
                 .subscribe((event: Event) => {
                     ++numberOfCalls;
                     if (numberOfCalls === 58 - startX) {
-                        expect(event.msg).toBe('Error');
+                        expect(event.msg).toBe('border crossed');
                         gameSubscription.unsubscribe();
                         done();
                     } else {
@@ -281,7 +281,7 @@ describe('game', () => {
                 .subscribe((event: Event) => {
                     ++numberOfCalls;
                     if (numberOfCalls === 78 - startY) {
-                        expect(event.msg).toBe('Error');
+                        expect(event.msg).toBe('border crossed');
                         gameSubscription.unsubscribe();
                         done();
                     } else {
