@@ -65,13 +65,13 @@ startButton.addEventListener('click', () => {
                 alert(event.msg);
             } else {
                 currentDirection = event.payload.direction;
-                document.getElementById('points').textContent = `${game.points}`;
+                document.getElementById('points').textContent = `${event.payload.points}`;
                 ctx.clearRect(5, 5, 290, 390);
                 ctx.fillStyle = '#9DCC06';
                 ctx.fillRect(5, 5, 290, 390);
                 ctx.fillStyle = '#000000';
-                ctx.fillRect(5 + game.foodField.position.x * 5, 5 + game.foodField.position.y * 5, 5, 5);
-                let node = game.snake.head;
+                ctx.fillRect(5 + event.payload.foodField.position.x * 5, 5 + event.payload.foodField.position.y * 5, 5, 5);
+                let node = event.payload.snake.head;
                 ctx.fillStyle = '#000000';
                 ctx.beginPath();
                 ctx.arc(8 + node.position.x * 5, 8 + node.position.y * 5, 5, 0, 2 * Math.PI);

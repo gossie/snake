@@ -1,16 +1,19 @@
 import { interval, Observable, Subject, Subscription } from 'rxjs';
 import { filter, tap } from 'rxjs/operators';
 import { Direction } from './direction';
-import Event from './event';
+import Event, { EventType } from './event';
 import FoodField from './food-field';
+import { Obstacle } from './obstacle';
 import Position from './position';
 import Snake from './snake';
 
 export default class Game {
 
+    private eventNr = 0;
     private snake: Snake;
     private points = 0;
     private field: FoodField;
+    private obstacles: Array<Obstacle> = [];
     private currentDirection: Direction = Direction.UP;
     private subscription: Subscription;
     private gameSubject = new Subject<Event>();
@@ -30,6 +33,7 @@ export default class Game {
 
         this.snake = new Snake(Math.round(this.width / 2), Math.round(this.height / 2));
         this.calculateNewFoodField();
+        this.obstacles = [];
         this.points = 0;
         this.currentDirection = Direction.UP;
 
@@ -37,28 +41,45 @@ export default class Game {
             .pipe(
                 tap(() => this.snake.move(this.currentDirection)),
                 tap(() => this.checkBorderCollision()),
-                filter(() => this.isEqualPosition(this.field.position, this.snake.head.position))
+                filter(() => this.isEqualPosition(this.field.position, this.snake.head.position)),
+                tap(() => this.eat()),
+                tap(() => this.calculateNewFoodField()),
+                tap(() => this.handleObstacleCreation())
             )
             .subscribe(
-                () => {
-                    this.snake.eat();
-                    this.calculateNewFoodField();
-                    ++this.points;
-                    this.gameSubject.next({
+                () => this.gameSubject.next({
+                        nr: this.eventNr++,
+                        type: EventType.EAT,
                         payload: {
                             snake: this.snake,
                             foodField: this.field,
+                            obstacles: this.obstacles,
                             direction: this.currentDirection,
                             points: this.points
                         }
-                    });
-                },
+                    }),
                 (e: Error) => {
-                    this.gameSubject.next({ msg: e.message});
+                    this.gameSubject.next({
+                        nr: this.eventNr++,
+                        type: EventType.ERROR,
+                        msg: e.message
+                    });
                     this.subscription.unsubscribe();
                     this.subscription = undefined;
                 }
             );
+
+        this.gameSubject.next({
+            nr: this.eventNr++,
+            type: EventType.START,
+            payload: {
+                snake: this.snake,
+                foodField: this.field,
+                obstacles: this.obstacles,
+                direction: this.currentDirection,
+                points: this.points
+            }
+        });
     }
 
     public observeGame(): Observable<Event> {
@@ -71,14 +92,41 @@ export default class Game {
         }
     }
 
+    private eat(): void {
+        this.snake.eat();
+        ++this.points;
+    }
+
+    private handleObstacleCreation(): void {
+        if (this.points === 10) {
+            this.obstacles.push({
+                position: {
+                    x: 0,
+                    y: this.height / 3
+                },
+                length: 5
+            });
+            this.obstacles.push({
+                position: {
+                    x: this.width - 1,
+                    y: this.height / 3 * 2
+                },
+                length: 5
+            });
+        }
+    }
+
     private checkBorderCollision(): void {
         if (this.isNotOnTheField()) {
             throw Error('border crossed');
         } else {
             this.gameSubject.next({
+                nr: this.eventNr++,
+                type: EventType.MOVE,
                 payload: {
                     snake: this.snake,
                     foodField: this.field,
+                    obstacles: this.obstacles,
                     direction: this.currentDirection,
                     points: this.points
                 }
