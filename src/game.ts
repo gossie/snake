@@ -3,6 +3,7 @@ import { filter, tap } from 'rxjs/operators';
 import { Direction } from './direction';
 import Event from './event';
 import FoodField from './food-field';
+import { Obstacle } from './obstacle';
 import Position from './position';
 import Snake from './snake';
 
@@ -11,6 +12,7 @@ export default class Game {
     private _snake: Snake;
     private _points = 0;
     private field: FoodField;
+    private _obstacles: Array<Obstacle> = [];
     private currentDirection: Direction = Direction.UP;
     private subscription: Subscription;
     private gameSubject = new Subject<Event>();
@@ -30,6 +32,7 @@ export default class Game {
 
         this._snake = new Snake(Math.round(this.width / 2), Math.round(this.height / 2));
         this.calculateNewFoodField();
+        this._obstacles = [];
         this._points = 0;
         this.currentDirection = Direction.UP;
 
@@ -37,19 +40,17 @@ export default class Game {
             .pipe(
                 tap(() => this.snake.move(this.currentDirection)),
                 tap(() => this.checkBorderCollision()),
-                filter(() => this.isEqualPosition(this.field.position, this.snake.head.position))
+                filter(() => this.isEqualPosition(this.field.position, this.snake.head.position)),
+                tap(() => this.eat()),
+                tap(() => this.calculateNewFoodField()),
+                tap(() => this.handleObstacleCreation())
             )
             .subscribe(
-                () => {
-                    this.snake.eat();
-                    this.calculateNewFoodField();
-                    ++this._points;
-                    this.gameSubject.next({
+                () => this.gameSubject.next({
                         payload: {
                             direction: this.currentDirection
                         }
-                    });
-                },
+                    }),
                 (e: Error) => {
                     this.gameSubject.next({ msg: e.message});
                     this.subscription.unsubscribe();
@@ -65,6 +66,30 @@ export default class Game {
     public setDirection(direction: Direction): void {
         if (this.allowedDirections.get(this.currentDirection).has(direction)) {
             this.currentDirection = direction;
+        }
+    }
+
+    private eat(): void {
+        this.snake.eat();
+        ++this._points;
+    }
+
+    private handleObstacleCreation(): void {
+        if (this.points === 10) {
+            this._obstacles.push({
+                position: {
+                    x: 0,
+                    y: this.height / 3
+                },
+                length: 5
+            });
+            this._obstacles.push({
+                position: {
+                    x: this.width - 1,
+                    y: this.height / 3 * 2
+                },
+                length: 5
+            });
         }
     }
 
@@ -110,6 +135,10 @@ export default class Game {
 
     public get foodField(): FoodField {
         return this.field;
+    }
+
+    public get obstacles(): Array<Obstacle> {
+        return this._obstacles;
     }
 
     public get points(): number {

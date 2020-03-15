@@ -1,6 +1,7 @@
 import { Direction } from './direction';
-import Game from './game';
 import Event from './event';
+import Game from './game';
+import { LineObstacle } from './obstacle';
 
 const sinon = require('sinon');
 
@@ -47,20 +48,7 @@ describe('game', () => {
         game.start();
 
         const foodPosition = game.foodField.position;
-
-        let direction = foodPosition.x < game.snake.head.position.x ? Direction.LEFT : Direction.RIGHT;
-        game.setDirection(direction);
-
-        while (game.snake.head.position.x !== foodPosition.x) {
-            clock.tick(75);
-        }
-
-        direction = foodPosition.y < game.snake.head.position.y ? Direction.UP : Direction.DOWN;
-        game.setDirection(direction);
-
-        while (game.snake.head.position.y !== foodPosition.y) {
-            clock.tick(75);
-        }
+        eat(game);
 
         expect(game.points).toBe(1);
         expect(game.snake.head.next).toBeDefined();
@@ -75,21 +63,7 @@ describe('game', () => {
 
         game.start();
 
-        const foodPosition = game.foodField.position;
-
-        let direction = foodPosition.x < game.snake.head.position.x ? Direction.LEFT : Direction.RIGHT;
-        game.setDirection(direction);
-
-        while (game.snake.head.position.x !== foodPosition.x) {
-            clock.tick(75);
-        }
-
-        direction = foodPosition.y < game.snake.head.position.y ? Direction.UP : Direction.DOWN;
-        game.setDirection(direction);
-
-        while (game.snake.head.position.y !== foodPosition.y) {
-            clock.tick(75);
-        }
+        eat(game);
         game.setDirection(Direction.LEFT);
 
         game.start();
@@ -293,6 +267,63 @@ describe('game', () => {
                 clock.tick(75);
             }
         });
+
     });
+
+    describe('obstacles', () => {
+
+        it('should appear after ten points', () => {
+            const game = new Game(50, 60);
+            game.start();
+
+            for (let i = 0; i < 10; i++) {
+                expect(game.obstacles.length).toBe(0);
+                eat(game);
+            }
+
+            const obstacle1: LineObstacle = <LineObstacle> game.obstacles[0];
+            const obstacle2: LineObstacle = <LineObstacle> game.obstacles[1];
+
+            expect(game.obstacles.length).toBe(2);
+            expect(obstacle1.position.x).toBe(0);
+            expect(obstacle1.position.y).toBe(20);
+            expect(obstacle1.length).toBe(5);
+            expect(obstacle2.position.x).toBe(49);
+            expect(obstacle2.position.y).toBe(40);
+            expect(obstacle2.length).toBe(5);
+        });
+
+        it('should reset obstacles when restarting', () => {
+            const game = new Game(50, 60);
+            game.start();
+
+            for (let i = 0; i < 10; i++) {
+                expect(game.obstacles.length).toBe(0);
+                eat(game);
+            }
+            expect(game.obstacles.length).toBe(2);
+
+            game.start();
+            expect(game.obstacles.length).toBe(0);
+        });
+
+    });
+
+    const eat = (game: Game) => {
+        const foodPosition = game.foodField.position;
+        let direction = foodPosition.x < game.snake.head.position.x ? Direction.LEFT : Direction.RIGHT;
+        game.setDirection(direction);
+
+        while (game.snake.head.position.x !== foodPosition.x) {
+            clock.tick(75);
+        }
+
+        direction = foodPosition.y < game.snake.head.position.y ? Direction.UP : Direction.DOWN;
+        game.setDirection(direction);
+
+        while (game.snake.head.position.y !== foodPosition.y) {
+            clock.tick(75);
+        }
+    };
 
 });
