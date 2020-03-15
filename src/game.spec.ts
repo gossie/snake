@@ -358,10 +358,10 @@ describe('game', () => {
                             const obstacle2: LineObstacle = <LineObstacle> event.payload.obstacles[1];
                             expect(obstacle1.position.x).toBe(0);
                             expect(obstacle1.position.y).toBe(20);
-                            expect(obstacle1.length).toBe(5);
-                            expect(obstacle2.position.x).toBe(49);
+                            expect(obstacle1.length).toBe(10);
+                            expect(obstacle2.position.x).toBe(40);
                             expect(obstacle2.position.y).toBe(40);
-                            expect(obstacle2.length).toBe(5);
+                            expect(obstacle2.length).toBe(10);
                             gameSubscription.unsubscribe();
                             done();
                         } else {

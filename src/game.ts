@@ -104,14 +104,14 @@ export default class Game {
                     x: 0,
                     y: this.height / 3
                 },
-                length: 5
+                length: 10
             });
             this.obstacles.push({
                 position: {
-                    x: this.width - 1,
+                    x: this.width - 10,
                     y: this.height / 3 * 2
                 },
-                length: 5
+                length: 10
             });
         }
     }

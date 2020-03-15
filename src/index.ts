@@ -1,6 +1,7 @@
 import { Direction } from './direction';
 import Event from './event';
 import Game from './game';
+import { LineObstacle } from './obstacle';
 
 const canvas: HTMLCanvasElement = document.createElement('canvas');
 canvas.width = 300;
@@ -82,6 +83,11 @@ startButton.addEventListener('click', () => {
                     ctx.fillRect(5 + node.position.x * 5, 5 + node.position.y * 5, 5, 5);
                     node = node.next;
                 }
+
+                event.payload.obstacles.forEach((obstacle: LineObstacle) => {
+                    ctx.fillStyle = '#000000';
+                    ctx.fillRect(5 + obstacle.position.x * 5, 5 + obstacle.position.y * 5, 5 * obstacle.length, 5);
+                });
             }
         });
 
