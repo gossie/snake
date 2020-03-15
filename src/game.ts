@@ -1,9 +1,10 @@
+import '@gossie/array-pipe';
 import { interval, Observable, Subject, Subscription } from 'rxjs';
 import { filter, tap } from 'rxjs/operators';
 import { Direction } from './direction';
 import Event, { EventType } from './event';
 import FoodField from './food-field';
-import { Obstacle } from './obstacle';
+import { LineObstacle, Obstacle } from './obstacle';
 import Position from './position';
 import Snake from './snake';
 
@@ -40,7 +41,7 @@ export default class Game {
         this.subscription = interval(75)
             .pipe(
                 tap(() => this.snake.move(this.currentDirection)),
-                tap(() => this.checkBorderCollision()),
+                tap(() => this.checkForCollision()),
                 filter(() => this.isEqualPosition(this.field.position, this.snake.head.position)),
                 tap(() => this.eat()),
                 tap(() => this.calculateNewFoodField()),
@@ -116,9 +117,11 @@ export default class Game {
         }
     }
 
-    private checkBorderCollision(): void {
+    private checkForCollision(): void {
         if (this.isNotOnTheField()) {
             throw Error('border crossed');
+        } else if (this.crashedIntoObstacle()) {
+            throw Error('snake crashed into obstacle');
         } else {
             this.gameSubject.next({
                 nr: this.eventNr++,
@@ -139,6 +142,14 @@ export default class Game {
             || this.snake.head.position.x < 0
             || this.snake.head.position.y >= this.height
             || this.snake.head.position.x >= this.width;
+    }
+
+    private crashedIntoObstacle(): boolean {
+        return this.obstacles.some((obstacle: LineObstacle) =>
+            obstacle.position.y === this.snake.head.position.y
+                && this.snake.head.position.x >= obstacle.position.x
+                && this.snake.head.position.x <= obstacle.position.x + obstacle.length
+        );
     }
 
     private calculateNewFoodField(): void {

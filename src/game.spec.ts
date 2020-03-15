@@ -343,7 +343,6 @@ describe('game', () => {
             const game = new Game(50, 60);
 
             let eatSubscription: Subscription;
-            let eatCount = 0;
             const gameSubscription = game.observeGame()
                 .subscribe((event: Event) => {
                     if (event.type === EventType.START) {
@@ -351,8 +350,7 @@ describe('game', () => {
                         clock.tick(75);
                     } else if (event.type === EventType.EAT) {
                         eatSubscription.unsubscribe();
-                        ++eatCount;
-                        if (eatCount === 10) {
+                        if (event.payload.points === 10) {
                             expect(event.payload.obstacles.length).toBe(2);
                             const obstacle1: LineObstacle = <LineObstacle> event.payload.obstacles[0];
                             const obstacle2: LineObstacle = <LineObstacle> event.payload.obstacles[1];
@@ -379,7 +377,6 @@ describe('game', () => {
             const game = new Game(50, 60);
 
             let eatSubscription: Subscription;
-            let eatCount = 0;
             const gameSubscription = game.observeGame()
                 .subscribe((event: Event) => {
                     if (event.type === EventType.START && event.nr === 0) {
@@ -391,8 +388,7 @@ describe('game', () => {
                         done();
                     } else if (event.type === EventType.EAT) {
                         eatSubscription.unsubscribe();
-                        ++eatCount;
-                        if (eatCount === 10) {
+                        if (event.payload.points === 10) {
                             expect(event.payload.obstacles.length).toBe(2);
                             game.start();
                         } else {
@@ -400,6 +396,43 @@ describe('game', () => {
                             clock.tick(75);
                             expect(event.payload.obstacles.length).toBe(0);
                         }
+                    }
+                });
+
+            game.start();
+        });
+
+        it('should fail when snake crashes into an obstacles', (done) => {
+            const game = new Game(50, 60);
+
+            let eatSubscription: Subscription;
+            const gameSubscription = game.observeGame()
+                .subscribe((event: Event) => {
+                    if (event.type === EventType.START) {
+                        eatSubscription = eat(game, event.payload.foodField.position);
+                        clock.tick(75);
+                    } else if (event.type === EventType.EAT) {
+                        eatSubscription.unsubscribe();
+                        if (event.payload.obstacles.length === 0) {
+                            eatSubscription = eat(game, event.payload.foodField.position);
+                            clock.tick(75);
+                            expect(event.payload.obstacles.length).toBe(0);
+                        }
+                    } else if (event.type === EventType.MOVE && event.payload.points >= 10) {
+                        if (event.payload.snake.head.position.x > 5) {
+                            game.setDirection(Direction.LEFT);
+                        } else {
+                            if (event.payload.snake.head.position.y > 20) {
+                                game.setDirection(Direction.UP);
+                            } else {
+                                game.setDirection(Direction.DOWN);
+                            }
+                        }
+                        clock.tick(75);
+                    } else if (event.type === EventType.ERROR) {
+                        expect(event.msg).toBe('snake crashed into obstacle');
+                        gameSubscription.unsubscribe();
+                        done();
                     }
                 });
 
