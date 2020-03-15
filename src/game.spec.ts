@@ -1,6 +1,6 @@
 import { Direction } from './direction';
-import Game from './game';
 import Event from './event';
+import Game from './game';
 
 const sinon = require('sinon');
 
@@ -20,23 +20,33 @@ describe('game', () => {
         expect(new Game(100, 75)).toBeDefined();
     });
 
-    it('should have one food field after starting the game', () => {
+    it('should have one food field after starting the game', (done) => {
         const game = new Game(75, 100);
 
-        game.start();
+        const gameSubscription = game.observeGame()
+            .subscribe((event: Event) => {
+                expect(event.payload.foodField.position.x).toBeGreaterThanOrEqual(0);
+                expect(event.payload.foodField.position.x).toBeLessThan(75);
+                expect(event.payload.foodField.position.y).toBeGreaterThanOrEqual(0);
+                expect(event.payload.foodField.position.y).toBeLessThan(100);
+                gameSubscription.unsubscribe();
+                done();
+            });
 
-        expect(game.foodField.position.x).toBeGreaterThanOrEqual(0);
-        expect(game.foodField.position.x).toBeLessThan(75);
-        expect(game.foodField.position.y).toBeGreaterThanOrEqual(0);
-        expect(game.foodField.position.y).toBeLessThan(100);
+        game.start();
     });
 
-    it('should have a snake after starting the game', () => {
+    it('should have a snake after starting the game', (done) => {
         const game = new Game(75, 100);
 
-        game.start();
+        const gameSubscription = game.observeGame()
+            .subscribe((event: Event) => {
+                expect(event.payload.snake).toBeDefined();
+                gameSubscription.unsubscribe();
+                done();
+            });
 
-        expect(game.snake).toBeDefined();
+        game.start();
     });
 
     it('should eat', () => {

@@ -8,8 +8,8 @@ import Snake from './snake';
 
 export default class Game {
 
-    private _snake: Snake;
-    private _points = 0;
+    private snake: Snake;
+    private points = 0;
     private field: FoodField;
     private currentDirection: Direction = Direction.UP;
     private subscription: Subscription;
@@ -28,9 +28,9 @@ export default class Game {
             this.subscription.unsubscribe();
         }
 
-        this._snake = new Snake(Math.round(this.width / 2), Math.round(this.height / 2));
+        this.snake = new Snake(Math.round(this.width / 2), Math.round(this.height / 2));
         this.calculateNewFoodField();
-        this._points = 0;
+        this.points = 0;
         this.currentDirection = Direction.UP;
 
         this.subscription = interval(75)
@@ -43,10 +43,13 @@ export default class Game {
                 () => {
                     this.snake.eat();
                     this.calculateNewFoodField();
-                    ++this._points;
+                    ++this.points;
                     this.gameSubject.next({
                         payload: {
-                            direction: this.currentDirection
+                            snake: this.snake,
+                            foodField: this.field,
+                            direction: this.currentDirection,
+                            points: this.points
                         }
                     });
                 },
@@ -74,7 +77,10 @@ export default class Game {
         } else {
             this.gameSubject.next({
                 payload: {
-                    direction: this.currentDirection
+                    snake: this.snake,
+                    foodField: this.field,
+                    direction: this.currentDirection,
+                    points: this.points
                 }
             });
         }
@@ -102,17 +108,5 @@ export default class Game {
     private isEqualPosition(pos1: Position, pos2: Position): boolean {
         return pos1.x === pos2.x
             && pos1.y === pos2.y;
-    }
-
-    public get snake(): Snake {
-        return this._snake;
-    }
-
-    public get foodField(): FoodField {
-        return this.field;
-    }
-
-    public get points(): number {
-        return this._points;
     }
 }
