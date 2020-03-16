@@ -1,6 +1,7 @@
 import { Direction } from './direction';
 import Event from './event';
 import Game from './game';
+import { LineObstacle } from './obstacle';
 
 const canvas: HTMLCanvasElement = document.createElement('canvas');
 canvas.width = 300;
@@ -65,13 +66,13 @@ startButton.addEventListener('click', () => {
                 alert(event.msg);
             } else {
                 currentDirection = event.payload.direction;
-                document.getElementById('points').textContent = `${game.points}`;
+                document.getElementById('points').textContent = `${event.payload.points}`;
                 ctx.clearRect(5, 5, 290, 390);
                 ctx.fillStyle = '#9DCC06';
                 ctx.fillRect(5, 5, 290, 390);
                 ctx.fillStyle = '#000000';
-                ctx.fillRect(5 + game.foodField.position.x * 5, 5 + game.foodField.position.y * 5, 5, 5);
-                let node = game.snake.head;
+                ctx.fillRect(5 + event.payload.foodField.position.x * 5, 5 + event.payload.foodField.position.y * 5, 5, 5);
+                let node = event.payload.snake.head;
                 ctx.fillStyle = '#000000';
                 ctx.beginPath();
                 ctx.arc(8 + node.position.x * 5, 8 + node.position.y * 5, 4, 0, 2 * Math.PI);
@@ -82,6 +83,11 @@ startButton.addEventListener('click', () => {
                     ctx.fillRect(5 + node.position.x * 5, 5 + node.position.y * 5, 5, 5);
                     node = node.next;
                 }
+
+                event.payload.obstacles.forEach((obstacle: LineObstacle) => {
+                    ctx.fillStyle = obstacle.solid ? '#000000' : '#777777';
+                    ctx.fillRect(5 + obstacle.position.x * 5, 5 + obstacle.position.y * 5, 5 * obstacle.length, 5);
+                });
             }
         });
 
