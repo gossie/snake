@@ -109,27 +109,31 @@ export default class Game {
                         obstacleSubscription.unsubscribe();
                     } else {
                         if (this.obstacles.length === 0) {
-                            this.obstacles.push({
+                            this.obstacles.push(<LineObstacle>{
                                 position: {
                                     x: 0,
                                     y: this.height / 3
                                 },
-                                length: 1
+                                length: 1,
+                                solid: false
                             });
-                            this.obstacles.push({
+                            this.obstacles.push(<LineObstacle>{
                                 position: {
                                     x: this.width - 1,
                                     y: this.height / 3 * 2
                                 },
-                                length: 1
+                                length: 1,
+                                solid: false
                             });
                         } else {
                             const obstacle1 = (<LineObstacle> this.obstacles[0]);
                             const obstacle2 = (<LineObstacle> this.obstacles[1]);
                             if (obstacle1.length < 10) {
                                 obstacle1.length = obstacle1.length + 1;
+                                obstacle1.solid = obstacle1.length === 10;
                                 obstacle2.length = obstacle2.length + 1;
                                 obstacle2.position.x = this.width - obstacle2.length;
+                                obstacle2.solid = obstacle2.length === 10;
                             } else {
                                 obstacleSubscription.unsubscribe();
                             }
@@ -170,7 +174,7 @@ export default class Game {
         return this.obstacles.some((obstacle: LineObstacle) =>
             obstacle.position.y === this.snake.head.position.y
                 && this.snake.head.position.x >= obstacle.position.x
-                && this.snake.head.position.x <= obstacle.position.x + obstacle.length
+                && this.snake.head.position.x < obstacle.position.x + obstacle.length
         );
     }
 

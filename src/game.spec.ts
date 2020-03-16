@@ -357,15 +357,20 @@ describe('game', () => {
                             expect(event.payload.obstacles.length).toBe(2);
                             const obstacle1: LineObstacle = <LineObstacle> event.payload.obstacles[0];
                             const obstacle2: LineObstacle = <LineObstacle> event.payload.obstacles[1];
-                            expect(obstacle1.position.x).toBe(0);
-                            expect(obstacle1.position.y).toBe(20);
-                            expect(obstacle1.length).toBe(numberOfTicksAfterObstacleAppearance + 1);
-                            expect(obstacle2.position.x).toBe(49 - numberOfTicksAfterObstacleAppearance);
-                            expect(obstacle2.position.y).toBe(40);
-                            expect(obstacle2.length).toBe(numberOfTicksAfterObstacleAppearance + 1);
-                            if (numberOfTicksAfterObstacleAppearance === 9) {
+                            if (obstacle1.length === 10 && obstacle2.length === 10) {
+                                expect(obstacle1.solid).toBeTrue();
+                                expect(obstacle2.solid).toBeTrue();
                                 gameSubscription.unsubscribe();
                                 done();
+                            } else {
+                                expect(obstacle1.position.x).toBe(0);
+                                expect(obstacle1.position.y).toBe(20);
+                                expect(obstacle1.length).toBe(numberOfTicksAfterObstacleAppearance + 1);
+                                expect(obstacle1.solid).toBeFalse();
+                                expect(obstacle2.position.x).toBe(49 - numberOfTicksAfterObstacleAppearance);
+                                expect(obstacle2.position.y).toBe(40);
+                                expect(obstacle2.length).toBe(numberOfTicksAfterObstacleAppearance + 1);
+                                expect(obstacle2.solid).toBeFalse();
                             }
                         } else {
                             clock.tick(75);
@@ -378,9 +383,11 @@ describe('game', () => {
                             expect(obstacle1.position.x).toBe(0);
                             expect(obstacle1.position.y).toBe(20);
                             expect(obstacle1.length).toBe(1);
+                            expect(obstacle1.solid).toBeFalse();
                             expect(obstacle2.position.x).toBe(49);
                             expect(obstacle2.position.y).toBe(40);
                             expect(obstacle2.length).toBe(1);
+                            expect(obstacle2.solid).toBeFalse();
                         } else {
                             moveInFoodDirection(game, event.payload.snake, event.payload.foodField.position);
                             clock.tick(75);

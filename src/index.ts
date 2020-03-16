@@ -85,7 +85,7 @@ startButton.addEventListener('click', () => {
                 }
 
                 event.payload.obstacles.forEach((obstacle: LineObstacle) => {
-                    ctx.fillStyle = '#000000';
+                    ctx.fillStyle = obstacle.solid ? '#000000' : '#777777';
                     ctx.fillRect(5 + obstacle.position.x * 5, 5 + obstacle.position.y * 5, 5 * obstacle.length, 5);
                 });
             }
