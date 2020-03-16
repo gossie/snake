@@ -1,9 +1,9 @@
-import { Subscription } from 'rxjs';
 import { Direction } from './direction';
 import Event, { EventType } from './event';
 import Game from './game';
 import { LineObstacle } from './obstacle';
 import Position from './position';
+import Snake from './snake';
 
 const sinon = require('sinon');
 
@@ -55,21 +55,22 @@ describe('game', () => {
     it('should eat', (done) => {
         const game = new Game(75, 100);
 
-        let eatSubscription: Subscription;
         let foodPosition: Position;
         const gameSubscription = game.observeGame()
             .subscribe((event: Event) => {
                 if (event.type === EventType.START) {
                     expect(event.payload.points).toBe(0);
                     foodPosition = event.payload.foodField.position;
-                    eatSubscription = eat(game, foodPosition);
+                    moveInFoodDirection(game, event.payload.snake, foodPosition);
+                    clock.tick(75);
+                } else if (event.type === EventType.MOVE) {
+                    moveInFoodDirection(game, event.payload.snake, foodPosition);
                     clock.tick(75);
                 } else if (event.type === EventType.EAT) {
                     expect(event.payload.points).toBe(1);
                     expect(event.payload.snake.head.next).toBeDefined();
                     expect(event.payload.foodField.position).toBeDefined();
                     expect(event.payload.foodField.position).not.toEqual(foodPosition);
-                    eatSubscription.unsubscribe();
                     gameSubscription.unsubscribe();
                     done();
                 }
@@ -81,7 +82,6 @@ describe('game', () => {
     it('should reset game when started again', (done) => {
         const game = new Game(75, 100);
 
-        let eatSubscription: Subscription;
         let firstStartCall = true;
         let secondStartPerformed = false;
         let secondStartX: number;
@@ -91,7 +91,10 @@ describe('game', () => {
                 if (event.type === EventType.START && firstStartCall) {
                     firstStartCall = false;
                     expect(event.payload.points).toBe(0);
-                    eatSubscription = eat(game, event.payload.foodField.position);
+                    moveInFoodDirection(game, event.payload.snake, event.payload.foodField.position);
+                    clock.tick(75);
+                } else if (event.type === EventType.MOVE && !secondStartPerformed) {
+                    moveInFoodDirection(game, event.payload.snake, event.payload.foodField.position);
                     clock.tick(75);
                 } else if (event.type === EventType.START && !firstStartCall) {
                     secondStartPerformed = true;
@@ -110,7 +113,6 @@ describe('game', () => {
                     expect(event.payload.snake.head.position.x).toBe(secondStartX);
                     expect(event.payload.snake.head.position.y).toBe(secondStartY - 1);
 
-                    eatSubscription.unsubscribe();
                     gameSubscription.unsubscribe();
                     done();
                 }
@@ -342,28 +344,45 @@ describe('game', () => {
         it('should appear after ten points', (done) => {
             const game = new Game(50, 60);
 
-            let eatSubscription: Subscription;
+            let numberOfTicksAfterObstacleAppearance = 0;
             const gameSubscription = game.observeGame()
                 .subscribe((event: Event) => {
                     if (event.type === EventType.START) {
-                        eatSubscription = eat(game, event.payload.foodField.position);
+                        moveInFoodDirection(game, event.payload.snake, event.payload.foodField.position);
                         clock.tick(75);
+                    } else if (event.type === EventType.MOVE) {
+                        moveInFoodDirection(game, event.payload.snake, event.payload.foodField.position);
+                        if (event.payload.points >= 10) {
+                            ++numberOfTicksAfterObstacleAppearance;
+                            expect(event.payload.obstacles.length).toBe(2);
+                            const obstacle1: LineObstacle = <LineObstacle> event.payload.obstacles[0];
+                            const obstacle2: LineObstacle = <LineObstacle> event.payload.obstacles[1];
+                            expect(obstacle1.position.x).toBe(0);
+                            expect(obstacle1.position.y).toBe(20);
+                            expect(obstacle1.length).toBe(numberOfTicksAfterObstacleAppearance + 1);
+                            expect(obstacle2.position.x).toBe(49 - numberOfTicksAfterObstacleAppearance);
+                            expect(obstacle2.position.y).toBe(40);
+                            expect(obstacle2.length).toBe(numberOfTicksAfterObstacleAppearance + 1);
+                            if (numberOfTicksAfterObstacleAppearance === 9) {
+                                gameSubscription.unsubscribe();
+                                done();
+                            }
+                        } else {
+                            clock.tick(75);
+                        }
                     } else if (event.type === EventType.EAT) {
-                        eatSubscription.unsubscribe();
                         if (event.payload.points === 10) {
                             expect(event.payload.obstacles.length).toBe(2);
                             const obstacle1: LineObstacle = <LineObstacle> event.payload.obstacles[0];
                             const obstacle2: LineObstacle = <LineObstacle> event.payload.obstacles[1];
                             expect(obstacle1.position.x).toBe(0);
                             expect(obstacle1.position.y).toBe(20);
-                            expect(obstacle1.length).toBe(10);
-                            expect(obstacle2.position.x).toBe(40);
+                            expect(obstacle1.length).toBe(1);
+                            expect(obstacle2.position.x).toBe(49);
                             expect(obstacle2.position.y).toBe(40);
-                            expect(obstacle2.length).toBe(10);
-                            gameSubscription.unsubscribe();
-                            done();
+                            expect(obstacle2.length).toBe(1);
                         } else {
-                            eatSubscription = eat(game, event.payload.foodField.position);
+                            moveInFoodDirection(game, event.payload.snake, event.payload.foodField.position);
                             clock.tick(75);
                             expect(event.payload.obstacles.length).toBe(0);
                         }
@@ -376,23 +395,24 @@ describe('game', () => {
         it('should reset obstacles when restarting', (done) => {
             const game = new Game(50, 60);
 
-            let eatSubscription: Subscription;
             const gameSubscription = game.observeGame()
                 .subscribe((event: Event) => {
                     if (event.type === EventType.START && event.nr === 0) {
-                        eatSubscription = eat(game, event.payload.foodField.position);
+                        moveInFoodDirection(game, event.payload.snake, event.payload.foodField.position);
+                        clock.tick(75);
+                    } else if (event.type === EventType.MOVE) {
+                        moveInFoodDirection(game, event.payload.snake, event.payload.foodField.position);
                         clock.tick(75);
                     } else if (event.type === EventType.START && event.nr > 0) {
                         expect(event.payload.obstacles.length).toBe(0);
                         gameSubscription.unsubscribe();
                         done();
                     } else if (event.type === EventType.EAT) {
-                        eatSubscription.unsubscribe();
                         if (event.payload.points === 10) {
                             expect(event.payload.obstacles.length).toBe(2);
                             game.start();
                         } else {
-                            eatSubscription = eat(game, event.payload.foodField.position);
+                            moveInFoodDirection(game, event.payload.snake, event.payload.foodField.position);
                             clock.tick(75);
                             expect(event.payload.obstacles.length).toBe(0);
                         }
@@ -405,16 +425,17 @@ describe('game', () => {
         it('should fail when snake crashes into an obstacles', (done) => {
             const game = new Game(50, 60);
 
-            let eatSubscription: Subscription;
             const gameSubscription = game.observeGame()
                 .subscribe((event: Event) => {
                     if (event.type === EventType.START) {
-                        eatSubscription = eat(game, event.payload.foodField.position);
+                        moveInFoodDirection(game, event.payload.snake, event.payload.foodField.position);
+                        clock.tick(75);
+                    } else if (event.type === EventType.MOVE && event.payload.points < 10) {
+                        moveInFoodDirection(game, event.payload.snake, event.payload.foodField.position);
                         clock.tick(75);
                     } else if (event.type === EventType.EAT) {
-                        eatSubscription.unsubscribe();
                         if (event.payload.obstacles.length === 0) {
-                            eatSubscription = eat(game, event.payload.foodField.position);
+                            moveInFoodDirection(game, event.payload.snake, event.payload.foodField.position);
                             clock.tick(75);
                             expect(event.payload.obstacles.length).toBe(0);
                         }
@@ -441,25 +462,14 @@ describe('game', () => {
 
     });
 
-    const eat = (game: Game, foodPosition: Position) => {
-        let moveVertical = true;
-        return game.observeGame()
-            .subscribe((event: Event) => {
-                if (event.type === EventType.MOVE) {
-                    if (moveVertical) {
-                        const direction = foodPosition.x < event.payload.snake.head.position.x ? Direction.LEFT : Direction.RIGHT;
-                        game.setDirection(direction);
-                        if (Math.abs(event.payload.snake.head.position.x - foodPosition.x) === 1) {
-                            moveVertical = false;
-                        }
-                        clock.tick(75);
-                    } else {
-                        const direction = foodPosition.y < event.payload.snake.head.position.y ? Direction.UP : Direction.DOWN;
-                        game.setDirection(direction);
-                        clock.tick(75);
-                    }
-                }
-            });
+    const moveInFoodDirection = (game: Game, snake: Snake, foodPosition: Position) => {
+        if (foodPosition.x !== snake.head.position.x) {
+            const direction = foodPosition.x < snake.head.position.x ? Direction.LEFT : Direction.RIGHT;
+            game.setDirection(direction);
+        } else {
+            const direction = foodPosition.y < snake.head.position.y ? Direction.UP : Direction.DOWN;
+            game.setDirection(direction);
+        }
     };
 
 });

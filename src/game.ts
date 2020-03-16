@@ -1,5 +1,5 @@
 import '@gossie/array-pipe';
-import { interval, Observable, Subject, Subscription } from 'rxjs';
+import { BehaviorSubject, interval, Observable, Subscription } from 'rxjs';
 import { filter, tap } from 'rxjs/operators';
 import { Direction } from './direction';
 import Event, { EventType } from './event';
@@ -17,7 +17,7 @@ export default class Game {
     private obstacles: Array<Obstacle> = [];
     private currentDirection: Direction = Direction.UP;
     private subscription: Subscription;
-    private gameSubject = new Subject<Event>();
+    private gameSubject = new BehaviorSubject<Event>(null);
     private readonly allowedDirections = new Map<Direction, Set<Direction>>([
         [Direction.UP, new Set([Direction.LEFT, Direction.RIGHT])],
         [Direction.LEFT, new Set([Direction.UP, Direction.DOWN])],
@@ -84,7 +84,10 @@ export default class Game {
     }
 
     public observeGame(): Observable<Event> {
-        return this.gameSubject.asObservable();
+        return this.gameSubject.asObservable()
+            .pipe(
+                filter((event: Event) => event !== null)
+            );
     }
 
     public setDirection(direction: Direction): void {
@@ -100,20 +103,39 @@ export default class Game {
 
     private handleObstacleCreation(): void {
         if (this.points === 10) {
-            this.obstacles.push({
-                position: {
-                    x: 0,
-                    y: this.height / 3
-                },
-                length: 10
-            });
-            this.obstacles.push({
-                position: {
-                    x: this.width - 10,
-                    y: this.height / 3 * 2
-                },
-                length: 10
-            });
+            const obstacleSubscription = this.observeGame()
+                .subscribe((event: Event) => {
+                    if (event.type === EventType.START || event.type === EventType.ERROR) {
+                        obstacleSubscription.unsubscribe();
+                    } else {
+                        if (this.obstacles.length === 0) {
+                            this.obstacles.push({
+                                position: {
+                                    x: 0,
+                                    y: this.height / 3
+                                },
+                                length: 1
+                            });
+                            this.obstacles.push({
+                                position: {
+                                    x: this.width - 1,
+                                    y: this.height / 3 * 2
+                                },
+                                length: 1
+                            });
+                        } else {
+                            const obstacle1 = (<LineObstacle> this.obstacles[0]);
+                            const obstacle2 = (<LineObstacle> this.obstacles[1]);
+                            if (obstacle1.length < 10) {
+                                obstacle1.length = obstacle1.length + 1;
+                                obstacle2.length = obstacle2.length + 1;
+                                obstacle2.position.x = this.width - obstacle2.length;
+                            } else {
+                                obstacleSubscription.unsubscribe();
+                            }
+                        }
+                    }
+                });
         }
     }
 
