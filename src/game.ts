@@ -44,8 +44,8 @@ export default class Game {
                 tap(() => this.checkForCollision()),
                 filter(() => this.isEqualPosition(this.field.position, this.snake.head.position)),
                 tap(() => this.eat()),
-                tap(() => this.calculateNewFoodField()),
-                tap(() => this.handleObstacleCreation())
+                tap(() => this.handleObstacleCreation()),
+                tap(() => this.calculateNewFoodField())
             )
             .subscribe(
                 () => this.gameSubject.next({
@@ -109,22 +109,8 @@ export default class Game {
                         obstacleSubscription.unsubscribe();
                     } else {
                         if (this.obstacles.length === 0) {
-                            this.obstacles.push(<LineObstacle>{
-                                position: {
-                                    x: 0,
-                                    y: this.height / 3
-                                },
-                                length: 1,
-                                solid: false
-                            });
-                            this.obstacles.push(<LineObstacle>{
-                                position: {
-                                    x: this.width - 1,
-                                    y: this.height / 3 * 2
-                                },
-                                length: 1,
-                                solid: false
-                            });
+                            this.obstacles.push(new LineObstacle({ x: 0, y: this.height / 3 }, 1, false ));
+                            this.obstacles.push(new LineObstacle({ x: this.width - 1, y: this.height / 3 * 2 }, 1, false ));
                         } else {
                             const obstacle1 = (<LineObstacle> this.obstacles[0]);
                             const obstacle2 = (<LineObstacle> this.obstacles[1]);
@@ -171,22 +157,23 @@ export default class Game {
     }
 
     private crashedIntoObstacle(): boolean {
-        return this.obstacles.some((obstacle: LineObstacle) =>
-            obstacle.position.y === this.snake.head.position.y
-                && this.snake.head.position.x >= obstacle.position.x
-                && this.snake.head.position.x < obstacle.position.x + obstacle.length
-        );
+        return this.obstacles.some((obstacle: LineObstacle) => obstacle.collides(this.snake.head.position));
     }
 
     private calculateNewFoodField(): void {
-        const randomX = Math.round(Math.random() * (this.width - 1));
-        const randomY = Math.round(Math.random() * (this.height - 1));
+        let newFoodPosition = {
+            x: Math.round(Math.random() * (this.width - 1)),
+            y: Math.round(Math.random() * (this.height - 1))
+        };
+        while (this.obstacles.some((obstacle: Obstacle) => obstacle.collides(newFoodPosition))) {
+            newFoodPosition = {
+                x: Math.round(Math.random() * (this.width - 1)),
+                y: Math.round(Math.random() * (this.height - 1))
+            };
+        }
 
         this.field = {
-            position: {
-                x: randomX,
-                y: randomY
-            }
+            position: newFoodPosition
         };
     }
 
