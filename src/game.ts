@@ -10,6 +10,7 @@ import Snake from './snake';
 
 export default class Game {
 
+    private gameId = -1;
     private eventNr = 0;
     private snake: Snake;
     private points = 0;
@@ -28,6 +29,7 @@ export default class Game {
     constructor(private width: number, private height: number) {}
 
     public start(): void {
+        ++this.gameId;
         if (this.subscription) {
             this.subscription.unsubscribe();
         }
@@ -49,28 +51,32 @@ export default class Game {
             )
             .subscribe(
                 () => this.gameSubject.next({
-                        nr: this.eventNr++,
-                        type: EventType.EAT,
-                        payload: {
-                            snake: this.snake,
-                            foodField: this.field,
-                            obstacles: this.obstacles,
-                            direction: this.currentDirection,
-                            points: this.points
-                        }
-                    }),
+                    gameId: this.gameId,
+                    nr: this.eventNr++,
+                    type: EventType.EAT,
+                    payload: {
+                        snake: this.snake,
+                        foodField: this.field,
+                        obstacles: this.obstacles,
+                        direction: this.currentDirection,
+                        points: this.points
+                    }
+                }),
                 (e: Error) => {
                     this.gameSubject.next({
+                        gameId: this.gameId,
                         nr: this.eventNr++,
                         type: EventType.ERROR,
                         msg: e.message
                     });
                     this.subscription.unsubscribe();
                     this.subscription = undefined;
+                    ++this.gameId;
                 }
             );
 
         this.gameSubject.next({
+            gameId: this.gameId,
             nr: this.eventNr++,
             type: EventType.START,
             payload: {
@@ -86,7 +92,8 @@ export default class Game {
     public observeGame(): Observable<Event> {
         return this.gameSubject.asObservable()
             .pipe(
-                filter((event: Event) => event !== null)
+                filter((event: Event) => event !== null),
+                filter((event: Event) => event.gameId === this.gameId)
             );
     }
 
@@ -136,6 +143,7 @@ export default class Game {
             throw Error('snake crashed into obstacle');
         } else {
             this.gameSubject.next({
+                gameId: this.gameId,
                 nr: this.eventNr++,
                 type: EventType.MOVE,
                 payload: {

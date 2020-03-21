@@ -11,6 +11,7 @@ export enum EventType {
 }
 
 export default interface Event {
+    gameId: number;
     nr: number;
     type: EventType;
     msg?: string;
