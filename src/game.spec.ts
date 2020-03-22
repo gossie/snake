@@ -166,21 +166,25 @@ describe('game', () => {
                         startY = event.payload.snake.head.position.y;
                         game.setDirection(Direction.LEFT);
                         game.setDirection(Direction.DOWN);
-                        clock.tick(75);
                     } else if (event.type === EventType.MOVE) {
                         switch (event.nr) {
                             case 1:
-                                expect(event.payload.snake.head.position.x).toBe(startX);
-                                expect(event.payload.snake.head.position.y).toBe(startY + 1);
+                                expect(event.payload.snake.head.position.x).toBe(startX - 1);
+                                expect(event.payload.snake.head.position.y).toBe(startY);
                                 game.setDirection(Direction.UP);
-                                clock.tick(75);
                                 break;
                             case 2:
-                                expect(event.payload.snake.head.position.x).toBe(startX);
+                                expect(event.payload.snake.head.position.x).toBe(startX - 1);
+                                expect(event.payload.snake.head.position.y).toBe(startY + 1);
+                                game.setDirection(Direction.UP);
+                                break;
+                            case 3:
+                                expect(event.payload.snake.head.position.x).toBe(startX - 1);
                                 expect(event.payload.snake.head.position.y).toBe(startY + 2);
                                 done();
                         }
                     }
+                    clock.tick(75);
                 });
 
             game.start();
@@ -246,6 +250,32 @@ describe('game', () => {
                 });
 
             game.start();
+        });
+
+        it('should should only accept one direction command per frame', (done) => {
+            const game = new Game(75, 100);
+
+            let startX: number;
+            let startY: number;
+            game.observeGame()
+                .subscribe((event: Event) => {
+                    if (event.type === EventType.START) {
+                        startX = event.payload.snake.head.position.x;
+                        startY = event.payload.snake.head.position.y;
+                    }
+
+                    if (event.nr === 2) {
+                        expect(event.payload.snake.head.position.x).toBe(startX + 1);
+                        expect(event.payload.snake.head.position.y).toBe(startY + 1);
+                        done();
+                    }
+                });
+
+            game.start();
+            game.setDirection(Direction.RIGHT);
+            game.setDirection(Direction.DOWN);
+            clock.tick(75);
+            clock.tick(75);
         });
 
     });
@@ -325,7 +355,7 @@ describe('game', () => {
                         game.setDirection(Direction.LEFT);
                         game.setDirection(Direction.DOWN);
                         startY = event.payload.snake.head.position.y;
-                    } else if (event.nr === 78 - startY) {
+                    } else if (event.nr === 79 - startY) {
                         expect(event.type).toBe(EventType.ERROR);
                         expect(event.msg).toBe('border crossed');
                         gameSubscription.unsubscribe();

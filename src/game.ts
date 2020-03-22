@@ -16,6 +16,7 @@ export default class Game {
     private points = 0;
     private field: FoodField;
     private obstacles: Array<Obstacle> = [];
+    private directionCommands: Array<Direction> = [];
     private currentDirection: Direction = Direction.UP;
     private subscription: Subscription;
     private gameSubject = new BehaviorSubject<Event>(null);
@@ -38,10 +39,12 @@ export default class Game {
         this.calculateNewFoodField();
         this.obstacles = [];
         this.points = 0;
+        this.directionCommands = [];
         this.currentDirection = Direction.UP;
 
         this.subscription = interval(75)
             .pipe(
+                tap(() => this.currentDirection = this.directionCommands.length > 0 ? this.directionCommands.shift() : this.currentDirection),
                 tap(() => this.snake.move(this.currentDirection)),
                 tap(() => this.checkForCollision()),
                 filter(() => this.isEqualPosition(this.field.position, this.snake.head.position)),
@@ -98,8 +101,10 @@ export default class Game {
     }
 
     public setDirection(direction: Direction): void {
-        if (this.allowedDirections.get(this.currentDirection).has(direction)) {
-            this.currentDirection = direction;
+        const d = this.directionCommands.length > 0 ? this.directionCommands[this.directionCommands.length - 1] : this.currentDirection;
+
+        if (this.allowedDirections.get(d).has(direction)) {
+            this.directionCommands.push(direction);
         }
     }
 
